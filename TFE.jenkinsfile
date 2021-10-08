@@ -1,0 +1,56 @@
+pipeline {
+  agent any
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+    stage('Terraform') {
+      agent {
+        docker {
+          image 'hashicorp/terraform:latest'
+          args '--entrypoint=/usr/bin/tail'
+        }
+      }
+      stages {
+        stage('Terraform Prep') {
+          steps {
+            dir('tfe') {
+              sh 'terraform init'
+              echo 'Initialization complete'
+            }
+          }
+        }
+        stage('Terrafrom Plan') {
+          steps {
+            dir('tfe') {
+              sh 'terrafrom plan'
+              echo 'Planning deployment'
+            }
+          }
+        }
+        stage('Go/NoGo?') {
+          steps {
+          echo ' Checks whether deployment is as per expectation'
+            input 'Deploy?'
+          }
+        }
+        stage('Terraform Apply') {
+          steps {
+            dir('tfe') {
+              echo 'Applying deployment.. Please wait'
+              sh 'terraform apply'
+              echo 'Deployment implemented.'
+            }
+          }
+        }
+      }
+    }
+  }
+  post {
+    cleanup {
+      cleanWs()
+    }
+  }
+}

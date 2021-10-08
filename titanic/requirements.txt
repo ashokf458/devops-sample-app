@@ -1,0 +1,11 @@
+psycopg2
+Flask-SQLAlchemy
+flask-marshmallow
+marshmallow
+marshmallow-sqlalchemy
+connexion
+Flask
+swagger-ui-bundle
+jsonschema
+requests
+safety
